@@ -1,0 +1,352 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  /* Light Theme - Professional SaaS Dashboard */
+  --background: 255 255 255; /* white */
+  --foreground: 15 23 42; /* slate-900 */
+
+  /* Surface & Cards */
+  --card: 248 250 252; /* slate-50 */
+  --card-foreground: 15 23 42;
+  --popover: 255 255 255;
+  --popover-foreground: 15 23 42;
+
+  /* Primary (Purple-Blue Gradient) */
+  --primary: 139 92 246; /* violet-500 */
+  --primary-foreground: 255 255 255;
+
+  /* Secondary/Accent */
+  --secondary: 99 102 241; /* indigo-500 */
+  --secondary-foreground: 255 255 255;
+  --accent: 99 102 241;
+  --accent-foreground: 255 255 255;
+
+  /* Neutrals */
+  --muted: 241 245 249; /* slate-100 */
+  --muted-foreground: 100 116 139; /* slate-500 */
+  --border: 226 232 240; /* slate-200 */
+  --input: 226 232 240;
+  --ring: 139 92 246;
+
+  /* Semantic Colors */
+  --destructive: 239 68 68;
+  --destructive-foreground: 255 255 255;
+  --success: 34 197 94;
+  --success-foreground: 255 255 255;
+
+  /* Sidebar */
+  --sidebar-bg: 248 250 252; /* slate-50 */
+  --sidebar-border: 226 232 240; /* slate-200 */
+
+  /* Radius */
+  --radius: 0.75rem;
+}
+
+.dark {
+  /* Dark Theme - Premium SaaS Dashboard */
+  --background: 2 6 23; /* slate-950 */
+  --foreground: 248 250 252; /* slate-50 */
+
+  /* Surface & Cards */
+  --card: 15 23 42; /* slate-900 */
+  --card-foreground: 248 250 252;
+  --popover: 15 23 42;
+  --popover-foreground: 248 250 252;
+
+  /* Primary (Purple-Blue Gradient) */
+  --primary: 139 92 246; /* violet-500 */
+  --primary-foreground: 255 255 255;
+
+  /* Secondary/Accent */
+  --secondary: 99 102 241; /* indigo-500 */
+  --secondary-foreground: 255 255 255;
+  --accent: 99 102 241;
+  --accent-foreground: 255 255 255;
+
+  /* Neutrals */
+  --muted: 30 41 59; /* slate-800 */
+  --muted-foreground: 148 163 184; /* slate-400 */
+  --border: 30 41 59;
+  --input: 30 41 59;
+  --ring: 139 92 246;
+
+  /* Semantic Colors */
+  --destructive: 239 68 68;
+  --destructive-foreground: 255 255 255;
+  --success: 34 197 94;
+  --success-foreground: 255 255 255;
+
+  /* Sidebar */
+  --sidebar-bg: 15 23 42; /* slate-900 */
+  --sidebar-border: 30 41 59; /* slate-800 */
+
+  --chart-1: oklch(0.488 0.243 264.376);
+  --chart-2: oklch(0.696 0.17 162.48);
+  --chart-3: oklch(0.769 0.188 70.08);
+  --chart-4: oklch(0.627 0.265 303.9);
+  --chart-5: oklch(0.645 0.246 16.439);
+  --sidebar: oklch(0.205 0 0);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.269 0 0);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(0.269 0 0);
+  --sidebar-ring: oklch(0.439 0 0);
+
+  /* User defined dark colors */
+  --background: 2 6 23;
+  --foreground: 248 250 252;
+
+  --card: 15 23 42;
+  --card-foreground: 248 250 252;
+  --popover: 15 23 42;
+  --popover-foreground: 248 250 252;
+
+  --muted: 30 41 59;
+  --muted-foreground: 148 163 184;
+  --border: 30 41 59;
+  --input: 30 41 59;
+
+  --primary: 6 182 212;
+  --primary-foreground: 255 255 255;
+
+  --secondary: 255 122 102;
+  --secondary-foreground: 255 255 255;
+  --accent: 255 122 102;
+  --accent-foreground: 255 255 255;
+}
+
+@theme inline {
+  /* Add font family variables for all display fonts */
+  --font-sans: var(--font-sans);
+  --font-bebas: var(--font-bebas);
+  --font-playfair: var(--font-playfair);
+  --font-oswald: var(--font-oswald);
+  --font-pacifico: var(--font-pacifico);
+  --font-raleway: var(--font-raleway);
+  --font-roboto-slab: var(--font-roboto-slab);
+  --font-dancing: var(--font-dancing);
+  --font-montserrat: var(--font-montserrat);
+
+  --color-background: rgb(var(--background));
+  --color-foreground: rgb(var(--foreground));
+  --color-card: rgb(var(--card));
+  --color-card-foreground: rgb(var(--card-foreground));
+  --color-popover: rgb(var(--popover));
+  --color-popover-foreground: rgb(var(--popover-foreground));
+  --color-primary: rgb(var(--primary));
+  --color-primary-foreground: rgb(var(--primary-foreground));
+  --color-secondary: rgb(var(--secondary));
+  --color-secondary-foreground: rgb(var(--secondary-foreground));
+  --color-muted: rgb(var(--muted));
+  --color-muted-foreground: rgb(var(--muted-foreground));
+  --color-accent: rgb(var(--accent));
+  --color-accent-foreground: rgb(var(--accent-foreground));
+  --color-destructive: rgb(var(--destructive));
+  --color-destructive-foreground: rgb(var(--destructive-foreground));
+  --color-success: rgb(var(--success));
+  --color-success-foreground: rgb(var(--success-foreground));
+  --color-border: rgb(var(--border));
+  --color-input: rgb(var(--input));
+  --color-ring: rgb(var(--ring));
+
+  --color-sidebar-bg: rgb(var(--sidebar-bg));
+  --color-sidebar-border: rgb(var(--sidebar-border));
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: var(--radius);
+  --radius-lg: calc(var(--radius) + 4px);
+  --radius-xl: calc(var(--radius) + 8px);
+
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground min-w-[1024px];
+  }
+}
+
+.glass-card {
+  background: rgba(15, 23, 42, 0.8);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(139, 92, 246, 0.1);
+}
+
+.purple-glow {
+  box-shadow: 0 0 40px rgba(139, 92, 246, 0.2);
+}
+
+.blue-glow {
+  box-shadow: 0 0 40px rgba(99, 102, 241, 0.2);
+}
+
+/* Premium gradient backgrounds */
+.gradient-mesh {
+  background: radial-gradient(at 27% 37%, rgb(6 182 212 / 0.08) 0px, transparent 50%),
+    radial-gradient(at 97% 21%, rgb(255 122 102 / 0.08) 0px, transparent 50%),
+    radial-gradient(at 52% 99%, rgb(6 182 212 / 0.05) 0px, transparent 50%),
+    radial-gradient(at 10% 29%, rgb(255 122 102 / 0.05) 0px, transparent 50%);
+}
+
+/* Added enhanced custom scrollbar with gradient */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: linear-gradient(to bottom, #06b6d4, #0891b2);
+  border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(to bottom, #0891b2, #0e7490);
+}
+
+/* Added enhanced slider styling for variation control */
+.slider-cyan::-webkit-slider-thumb {
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  background: linear-gradient(135deg, #06b6d4, #3b82f6);
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(6, 182, 212, 0.4);
+  transition: all 0.2s ease;
+}
+
+.slider-cyan::-webkit-slider-thumb:hover {
+  transform: scale(1.15);
+  box-shadow: 0 6px 16px rgba(6, 182, 212, 0.5);
+}
+
+.slider-cyan::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  background: linear-gradient(135deg, #06b6d4, #3b82f6);
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(6, 182, 212, 0.4);
+  transition: all 0.2s ease;
+}
+
+.slider-cyan::-moz-range-thumb:hover {
+  transform: scale(1.15);
+  box-shadow: 0 6px 16px rgba(6, 182, 212, 0.5);
+}
+
+/* Added focus states for accessibility */
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 4px rgba(6, 182, 212, 0.3);
+  outline-offset: 2px;
+}
+
+/* Added slide-in animation for toast notifications */
+@keyframes slide-in-right {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.animate-slide-in-right {
+  animation: slide-in-right 0.3s ease-out;
+}
+
+/* Added shimmer animation for skeleton loading */
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.animate-shimmer {
+  animation: shimmer 2s infinite;
+}
+
+/* Added staggered entrance animation for design cards */
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.grid > div {
+  animation: fade-in-up 0.5s ease-out forwards;
+  opacity: 0;
+}
+
+/* Add font preview classes for dropdown */
+.font-bebas {
+  font-family: var(--font-bebas), sans-serif;
+}
+
+.font-playfair {
+  font-family: var(--font-playfair), serif;
+}
+
+.font-oswald {
+  font-family: var(--font-oswald), sans-serif;
+}
+
+.font-pacifico {
+  font-family: var(--font-pacifico), cursive;
+}
+
+.font-raleway {
+  font-family: var(--font-raleway), sans-serif;
+}
+
+.font-roboto-slab {
+  font-family: var(--font-roboto-slab), serif;
+}
+
+.font-dancing {
+  font-family: var(--font-dancing), cursive;
+}
+
+.font-montserrat {
+  font-family: var(--font-montserrat), sans-serif;
+}
