@@ -1,7 +1,8 @@
 "use client"
 
 import type React from "react"
-import { useState, useRef } from "react"
+import { useState, useRef, useEffect } from "react"
+import { useSearchParams } from "next/navigation"
 import {
   Upload,
   ChevronRight,
@@ -17,8 +18,10 @@ import {
   Download,
   ImageIcon,
   Sparkles,
+  Wand2,
 } from "lucide-react"
 import { extractTextFromImage, editDesignImage } from "@/lib/gemini-service"
+import { PageHeader } from "@/components/page-header"
 
 interface DetectedText {
   id: string
@@ -44,6 +47,7 @@ interface RecentDesign {
 type EditTab = "quick" | "advanced" | "history" | "batch"
 
 export function DesignEditor() {
+  const searchParams = useSearchParams()
   const [activeTab, setActiveTab] = useState<EditTab>("quick")
   const [selectedDesign, setSelectedDesign] = useState<string | null>(null)
   const [currentFile, setCurrentFile] = useState<File | null>(null)
@@ -60,6 +64,57 @@ export function DesignEditor() {
     { id: "1", name: "Coffee Mug Design", date: "2 hours ago", thumbnail: "/placeholder.svg?height=48&width=48" },
     { id: "2", name: "T-shirt Print", date: "Yesterday", thumbnail: "/placeholder.svg?height=48&width=48" },
   ]
+
+  useEffect(() => {
+    const designParam = searchParams.get("design")
+
+    if (designParam) {
+      try {
+        const design = JSON.parse(decodeURIComponent(designParam))
+        console.log("[v0] Loading design from URL:", design)
+
+        setSelectedDesign(design.url)
+
+        // Convert URL to File object for editing
+        fetch(design.url)
+          .then((res) => res.blob())
+          .then((blob) => {
+            const file = new File([blob], design.name || "design.png", { type: "image/png" })
+            setCurrentFile(file)
+
+            // Analyze the design
+            setAnalyzing(true)
+            extractTextFromImage(file)
+              .then((analysis) => {
+                const texts = analysis.texts || []
+                setDetectedTexts(
+                  texts.map((t, i) => ({
+                    id: `text${i}`,
+                    text: t.text,
+                    originalText: t.text,
+                    color: "#000000",
+                    bbox: { x: 20, y: 20 + i * 15, width: 30, height: 10 },
+                  })),
+                )
+
+                setEditHistory([design.url])
+                setHistoryIndex(0)
+              })
+              .catch((error) => {
+                console.error("[v0] Error analyzing pre-loaded design:", error)
+              })
+              .finally(() => {
+                setAnalyzing(false)
+              })
+          })
+          .catch((error) => {
+            console.error("[v0] Error loading design from URL:", error)
+          })
+      } catch (error) {
+        console.error("[v0] Error parsing design param:", error)
+      }
+    }
+  }, [searchParams])
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -157,8 +212,16 @@ export function DesignEditor() {
   const suggestions = ["Make text bold", "Change to vintage style", "Remove background", "Add warm tones"]
 
   return (
-    <div className="space-y-6">
-      <div className="grid grid-cols-[33%_67%] gap-6 h-[calc(100vh-280px)]">
+    <>
+      {/* PageHeader */}
+      <PageHeader
+        icon={<Wand2 className="w-6 h-6 text-white" />}
+        title="Design Edits"
+        description="Edit your designs with AI-powered tools"
+        gradient="from-purple-500 to-blue-500"
+      />
+
+      <div className="grid grid-cols-[33%_67%] gap-6 h-[calc(100vh-280px)] p-6 bg-black">
         <div className="space-y-4 overflow-y-auto pr-2">
           {/* Upload Zone */}
           <div
@@ -209,11 +272,11 @@ export function DesignEditor() {
           {/* Quick Edit Tools */}
           {selectedDesign && (
             <div className="bg-slate-900/50 backdrop-blur-xl border border-white/10 rounded-2xl p-6 space-y-3">
-              <h4 className="text-sm font-semibold text-slate-300 mb-3">Quick Edits</h4>
+              <h4 className="text-sm font-semibold text-slate-300 mb-3 uppercase tracking-wider">Quick Edits</h4>
 
               <button
                 onClick={() => handleQuickEdit("text")}
-                className="w-full flex items-center gap-3 px-4 py-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl transition-all"
+                className="w-full flex items-center gap-3 px-4 py-3 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-purple-500/30 rounded-xl transition-all"
               >
                 <Type className="w-5 h-5 text-purple-400" />
                 <span className="flex-1 text-left text-sm font-medium text-white">Edit Text</span>
@@ -222,7 +285,7 @@ export function DesignEditor() {
 
               <button
                 onClick={() => handleQuickEdit("color")}
-                className="w-full flex items-center gap-3 px-4 py-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl transition-all"
+                className="w-full flex items-center gap-3 px-4 py-3 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-blue-500/30 rounded-xl transition-all"
               >
                 <Palette className="w-5 h-5 text-blue-400" />
                 <span className="flex-1 text-left text-sm font-medium text-white">Change Colors</span>
@@ -231,7 +294,7 @@ export function DesignEditor() {
 
               <button
                 onClick={() => handleQuickEdit("replace")}
-                className="w-full flex items-center gap-3 px-4 py-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl transition-all"
+                className="w-full flex items-center gap-3 px-4 py-3 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-cyan-500/30 rounded-xl transition-all"
               >
                 <Replace className="w-5 h-5 text-cyan-400" />
                 <span className="flex-1 text-left text-sm font-medium text-white">Replace Object</span>
@@ -240,7 +303,7 @@ export function DesignEditor() {
 
               <button
                 onClick={() => handleQuickEdit("background")}
-                className="w-full flex items-center gap-3 px-4 py-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl transition-all"
+                className="w-full flex items-center gap-3 px-4 py-3 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-red-500/30 rounded-xl transition-all"
               >
                 <Eraser className="w-5 h-5 text-red-400" />
                 <span className="flex-1 text-left text-sm font-medium text-white">Remove Background</span>
@@ -285,7 +348,7 @@ export function DesignEditor() {
                 <Redo className="w-4 h-4 text-slate-300" />
               </button>
               <div className="w-px h-6 bg-white/10 mx-2" />
-              <button className="px-4 py-2 bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 rounded-lg text-sm font-semibold transition-all shadow-lg shadow-purple-500/20 text-white flex items-center gap-2">
+              <button className="px-4 py-2 bg-gradient-to-r from-purple-500 to-blue-600 hover:from-purple-600 hover:to-blue-700 rounded-lg text-sm font-semibold transition-all shadow-lg shadow-purple-500/20 text-white flex items-center gap-2">
                 <Download className="w-4 h-4" />
                 Export
               </button>
@@ -332,7 +395,7 @@ export function DesignEditor() {
                     }}
                   >
                     <div className="absolute -top-8 left-0 px-2 py-1 bg-purple-500 rounded-md text-xs font-medium opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap text-white">
-                      Click to edit "{text.content}"
+                      Click to edit "{text.text}"
                     </div>
                   </button>
                 ))}
@@ -356,7 +419,7 @@ export function DesignEditor() {
                 <button
                   onClick={handleChatEdit}
                   disabled={!chatMessage.trim() || analyzing}
-                  className="px-6 py-3 bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 rounded-xl font-semibold transition-all shadow-lg shadow-purple-500/20 disabled:opacity-50 disabled:cursor-not-allowed text-white"
+                  className="px-6 py-3 bg-gradient-to-r from-purple-500 to-blue-600 hover:from-purple-600 hover:to-blue-700 rounded-xl font-semibold transition-all shadow-lg shadow-purple-500/20 disabled:opacity-50 disabled:cursor-not-allowed text-white"
                 >
                   Apply
                 </button>
@@ -378,6 +441,6 @@ export function DesignEditor() {
           )}
         </div>
       </div>
-    </div>
+    </>
   )
 }

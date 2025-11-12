@@ -18,6 +18,14 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "No image provided" }, { status: 400 })
     }
 
+    if (imageFile.size > 10 * 1024 * 1024) {
+      return NextResponse.json({ error: "Image file must be under 10MB" }, { status: 400 })
+    }
+
+    if (!imageFile.type.startsWith("image/")) {
+      return NextResponse.json({ error: "File must be an image" }, { status: 400 })
+    }
+
     const model = genAI.getGenerativeModel({
       model: "gemini-2.0-flash-exp",
       generationConfig: {
@@ -74,6 +82,12 @@ Return the data in the specified JSON format.`
     return NextResponse.json(analysisResult)
   } catch (error) {
     console.error("[v0] Error analyzing design:", error)
-    return NextResponse.json({ error: "Failed to analyze design" }, { status: 500 })
+    return NextResponse.json(
+      {
+        error: "Failed to analyze design",
+        details: error instanceof Error ? error.message : "Unknown error",
+      },
+      { status: 500 },
+    )
   }
 }

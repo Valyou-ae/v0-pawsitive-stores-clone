@@ -51,6 +51,18 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
     }
 
+    if (designFile.size > 10 * 1024 * 1024) {
+      return NextResponse.json({ error: "File must be under 10MB" }, { status: 400 })
+    }
+
+    if (!designFile.type.startsWith("image/")) {
+      return NextResponse.json({ error: "File must be an image" }, { status: 400 })
+    }
+
+    const sanitizedProduct = product.trim().slice(0, 100)
+    const sanitizedStyle = style.trim().slice(0, 100)
+    const sanitizedColor = color.trim().slice(0, 50)
+
     const model = genAI.getGenerativeModel({
       model: "gemini-2.5-flash-image",
       systemInstruction: `You are an expert at creating photorealistic product mockups with perfect color contrast and visibility. 
@@ -72,12 +84,13 @@ Generate high-quality, professional mockup photos that seamlessly integrate the 
       },
     })
 
-    let prompt = `Generate a realistic product mockup photo showing this design on a ${color.toLowerCase()} ${product.toLowerCase()} in a ${style.toLowerCase()} setting.`
+    let prompt = `Generate a realistic product mockup photo showing this design on a ${sanitizedColor.toLowerCase()} ${sanitizedProduct.toLowerCase()} in a ${sanitizedStyle.toLowerCase()} setting.`
 
-    prompt += `\n\n${getContrastInstructions(color)}`
+    prompt += `\n\n${getContrastInstructions(sanitizedColor)}`
 
     if (scene) {
-      prompt += `\n\nScene: ${scene}.`
+      const sanitizedScene = scene.trim().slice(0, 200)
+      prompt += `\n\nScene: ${sanitizedScene}.`
     }
 
     if (gender && gender !== "Any") {
@@ -95,7 +108,7 @@ Generate high-quality, professional mockup photos that seamlessly integrate the 
     prompt += "\n\nMake it look professional and realistic with perfect visibility of the design."
 
     console.log("[v0] Mockup generation prompt:", prompt)
-    console.log("[v0] Product color:", color, "- Dark color:", isDarkColor(color))
+    console.log("[v0] Product color:", sanitizedColor, "- Dark color:", isDarkColor(sanitizedColor))
 
     const imageData = await fileToBase64(designFile)
 
@@ -121,6 +134,12 @@ Generate high-quality, professional mockup photos that seamlessly integrate the 
     throw new Error("No image returned from Gemini")
   } catch (error) {
     console.error("[v0] Error generating mockup:", error)
-    return NextResponse.json({ error: "Failed to generate mockup" }, { status: 500 })
+    return NextResponse.json(
+      {
+        error: "Failed to generate mockup",
+        details: error instanceof Error ? error.message : "Unknown error",
+      },
+      { status: 500 },
+    )
   }
 }

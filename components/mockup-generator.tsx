@@ -278,7 +278,7 @@ export function MockupGenerator() {
   }
 
   return (
-    <div className="grid grid-cols-[33%_67%] gap-6 h-[calc(100vh-120px)]">
+    <div className="grid grid-cols-[33%_67%] gap-6 h-[calc(100vh-120px)] p-6 bg-black">
       <div className="overflow-y-auto pr-2">
         <div className="sticky top-0 bg-slate-900/80 backdrop-blur-xl border border-white/10 rounded-2xl p-6 space-y-6 shadow-2xl">
           {/* Upload Designs Section */}

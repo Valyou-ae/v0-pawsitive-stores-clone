@@ -1,6 +1,7 @@
 "use client"
 
 import { createContext, useContext, useState, useEffect, useCallback, useMemo, type ReactNode } from "react"
+import { cleanupOldData, getStorageSize, safeStringify, safeParse } from "@/lib/storage-utils"
 
 // Type definitions
 interface Design {
@@ -58,7 +59,7 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
   const [allProjects, setAllProjects] = useState<Project[]>(() => {
     if (typeof window !== "undefined") {
       const saved = localStorage.getItem("genmock_projects")
-      return saved ? JSON.parse(saved) : []
+      return saved ? safeParse(saved) : []
     }
     return []
   })
@@ -66,7 +67,13 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
   // Persist to localStorage whenever projects change
   useEffect(() => {
     if (typeof window !== "undefined") {
-      localStorage.setItem("genmock_projects", JSON.stringify(allProjects))
+      const storageSize = getStorageSize()
+      console.log(`[v0] Current storage size: ${(storageSize / 1000000).toFixed(2)}MB`)
+
+      // Cleanup if over 5MB
+      cleanupOldData(5000000)
+
+      localStorage.setItem("genmock_projects", safeStringify(allProjects))
     }
   }, [allProjects])
 
@@ -95,8 +102,14 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
   )
 
   const addDesignsToProject = useCallback((projectId: string, designs: Design[]) => {
-    setAllProjects((prev) =>
-      prev.map((project) => {
+    setAllProjects((prev) => {
+      const projectExists = prev.find((p) => p.id === projectId)
+      if (!projectExists) {
+        console.warn(`[v0] Project ${projectId} not found`)
+        return prev
+      }
+
+      return prev.map((project) => {
         if (project.id === projectId) {
           return {
             ...project,
@@ -105,13 +118,19 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
           }
         }
         return project
-      }),
-    )
+      })
+    })
   }, [])
 
   const addMockupsToProject = useCallback((projectId: string, mockups: Mockup[]) => {
-    setAllProjects((prev) =>
-      prev.map((project) => {
+    setAllProjects((prev) => {
+      const projectExists = prev.find((p) => p.id === projectId)
+      if (!projectExists) {
+        console.warn(`[v0] Project ${projectId} not found`)
+        return prev
+      }
+
+      return prev.map((project) => {
         if (project.id === projectId) {
           return {
             ...project,
@@ -120,13 +139,19 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
           }
         }
         return project
-      }),
-    )
+      })
+    })
   }, [])
 
   const addListingToProject = useCallback((projectId: string, listing: Listing) => {
-    setAllProjects((prev) =>
-      prev.map((project) => {
+    setAllProjects((prev) => {
+      const projectExists = prev.find((p) => p.id === projectId)
+      if (!projectExists) {
+        console.warn(`[v0] Project ${projectId} not found`)
+        return prev
+      }
+
+      return prev.map((project) => {
         if (project.id === projectId) {
           return {
             ...project,
@@ -135,8 +160,8 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
           }
         }
         return project
-      }),
-    )
+      })
+    })
   }, [])
 
   const value = useMemo<ProjectContextType>(

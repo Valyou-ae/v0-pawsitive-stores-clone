@@ -41,6 +41,19 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
     }
 
+    if (imageFile.size > 10 * 1024 * 1024) {
+      return NextResponse.json({ error: "Image file must be under 10MB" }, { status: 400 })
+    }
+
+    if (!imageFile.type.startsWith("image/")) {
+      return NextResponse.json({ error: "File must be an image" }, { status: 400 })
+    }
+
+    const validEditTypes = ["text", "color", "pet", "custom"]
+    if (!validEditTypes.includes(editType)) {
+      return NextResponse.json({ error: "Invalid edit type" }, { status: 400 })
+    }
+
     const params = JSON.parse(paramsStr)
 
     console.log("[v0] Edit design request:", editType, params)
@@ -62,11 +75,14 @@ export async function POST(request: NextRequest) {
 
     switch (editType) {
       case "text":
-        prompt = `In this image, locate the text that reads "${params.oldText}" and change it to read "${params.newText}".
+        const oldText = String(params.oldText || "").slice(0, 500)
+        const newText = String(params.newText || "").slice(0, 500)
+
+        prompt = `In this image, locate the text that reads "${oldText}" and change it to read "${newText}".
 
 CRITICAL REQUIREMENTS:
-1. Find the EXACT text "${params.oldText}" in the image
-2. Replace it with exactly "${params.newText}" - character-for-character perfect
+1. Find the EXACT text "${oldText}" in the image
+2. Replace it with exactly "${newText}" - character-for-character perfect
 3. Keep the SAME font style, size, weight, and spacing as the original
 4. Keep the SAME color, effects, shadows, and textures as the original  
 5. Keep the SAME position and rotation as the original
@@ -74,13 +90,20 @@ CRITICAL REQUIREMENTS:
 7. Do NOT change the background, layout, or any other elements
 8. The image dimensions and framing must remain IDENTICAL
 
-This is a surgical text replacement: "${params.oldText}" → "${params.newText}". Nothing else changes.`
+This is a surgical text replacement: "${oldText}" → "${newText}". Nothing else changes.`
         break
       case "color":
-        prompt = `Precisely isolate the text "${params.targetText}" and change its color to be uniformly ${params.newColor}. Keep everything else identical.`
+        const targetText = String(params.targetText || "").slice(0, 500)
+        const newColor = String(params.newColor || "").slice(0, 50)
+
+        prompt = `Precisely isolate the text "${targetText}" and change its color to be uniformly ${newColor}. Keep everything else identical.`
         break
       case "pet":
         if (petImage) {
+          if (petImage.size > 10 * 1024 * 1024) {
+            return NextResponse.json({ error: "Pet image must be under 10MB" }, { status: 400 })
+          }
+
           const petData = await fileToBase64(petImage)
           parts.push({
             inlineData: {
@@ -88,11 +111,13 @@ This is a surgical text replacement: "${params.oldText}" → "${params.newText}"
               mimeType: petImage.type,
             },
           })
-          prompt = `Replace the pet described as "${params.petDescription}" in the first image with the pet from the second reference image. Maintain the exact same composition, style, and framing.`
+
+          const petDescription = String(params.petDescription || "").slice(0, 500)
+          prompt = `Replace the pet described as "${petDescription}" in the first image with the pet from the second reference image. Maintain the exact same composition, style, and framing.`
         }
         break
       case "custom":
-        prompt = params.customPrompt || ""
+        prompt = String(params.customPrompt || "").slice(0, 1000)
         break
     }
 
@@ -142,6 +167,12 @@ This is a surgical text replacement: "${params.oldText}" → "${params.newText}"
     throw new Error("No image returned from Gemini")
   } catch (error) {
     console.error("[v0] Error editing design:", error)
-    return NextResponse.json({ error: "Failed to edit design" }, { status: 500 })
+    return NextResponse.json(
+      {
+        error: "Failed to edit design",
+        details: error instanceof Error ? error.message : "Unknown error",
+      },
+      { status: 500 },
+    )
   }
 }

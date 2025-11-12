@@ -1,5 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { GoogleGenerativeAI } from "@google/generative-ai"
+import { generateDesignSchema } from "@/lib/validation"
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "")
 
@@ -17,11 +18,26 @@ const fontInstructions: Record<string, string> = {
 
 export async function POST(request: NextRequest) {
   try {
-    const { prompt, style, font, variation } = await request.json()
+    const body = await request.json()
+
+    const validation = generateDesignSchema.safeParse(body)
+    if (!validation.success) {
+      return NextResponse.json(
+        {
+          error: "Invalid input",
+          details: validation.error.errors.map((e) => `${e.path.join(".")}: ${e.message}`),
+        },
+        { status: 400 },
+      )
+    }
+
+    const { prompt, style, font, variation } = validation.data
 
     console.log("[v0] Generate design request:", { prompt, style, font, variation })
 
-    if (!prompt) {
+    const sanitizedPrompt = prompt.trim().replace(/[<>]/g, "")
+
+    if (!sanitizedPrompt) {
       return NextResponse.json({ error: "Prompt is required" }, { status: 400 })
     }
 
@@ -94,7 +110,7 @@ OUTPUT REQUIREMENTS:
       fontInstruction = `\n\nFONT REQUIREMENT: ${fontInstructions[font]}`
     }
 
-    const fullPrompt = `Create a stunning ${style} style graphic design: ${prompt}
+    const fullPrompt = `Create a stunning ${style} style graphic design: ${sanitizedPrompt}
 
 Apply beautiful, artistic typography with:
 - Hand-lettered text with varying sizes and flowing baselines

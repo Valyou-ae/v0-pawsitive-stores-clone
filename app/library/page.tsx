@@ -1,7 +1,7 @@
 "use client"
 
-import { ComingSoon } from "@/components/coming-soon"
+import { LibraryView } from "@/components/library/library-view"
 
 export default function LibraryPage() {
-  return <ComingSoon feature="Library" description="Access all your designs and mockups in one place" />
+  return <LibraryView />
 }

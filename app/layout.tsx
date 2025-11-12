@@ -1,5 +1,4 @@
 import type React from "react"
-import type { Metadata } from "next"
 import {
   Inter,
   Bebas_Neue,
@@ -12,11 +11,7 @@ import {
   Montserrat,
 } from "next/font/google"
 import "./globals.css"
-import { Toaster } from "@/components/ui/toaster"
-import { ProjectProvider } from "@/context/project-context"
-import { ThemeProvider } from "@/context/theme-context"
-import { AppSidebar } from "@/components/app-sidebar"
-import { AppHeader } from "@/components/app-header"
+import { ClientLayout } from "@/app/client-layout"
 
 const inter = Inter({
   subsets: ["latin"],
@@ -65,11 +60,11 @@ const montserrat = Montserrat({
   variable: "--font-montserrat",
 })
 
-export const metadata: Metadata = {
+export const metadata = {
   title: "Genmock | AI-Powered Design & Mockup Generator",
   description:
     "Professional AI mockup generator for e-commerce sellers. Create stunning product designs and realistic mockups in seconds.",
-    generator: 'v0.app'
+  generator: "v0.app",
 }
 
 export default function RootLayout({
@@ -83,18 +78,7 @@ export default function RootLayout({
       className={`${inter.variable} ${bebasNeue.variable} ${playfair.variable} ${oswald.variable} ${pacifico.variable} ${raleway.variable} ${robotoSlab.variable} ${dancingScript.variable} ${montserrat.variable}`}
     >
       <body className="antialiased font-sans">
-        <ThemeProvider>
-          <ProjectProvider>
-            <div className="min-h-screen bg-background">
-              <AppSidebar />
-              <div className="ml-20">
-                <AppHeader />
-                <main className="p-6">{children}</main>
-              </div>
-            </div>
-          </ProjectProvider>
-        </ThemeProvider>
-        <Toaster />
+        <ClientLayout>{children}</ClientLayout>
       </body>
     </html>
   )
